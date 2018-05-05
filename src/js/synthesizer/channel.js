@@ -1,29 +1,35 @@
-export class Channel {
-    constructor(context) {
-        this.context = context;
-        this.oscillator = context.createOscillator();
-        this.oscillator.type = 'triangle';
-        this.amplifier = context.createGain();
+import ADSRAmplifier from './adsrAmplifier';
 
-        console.log(this.amplifier.gain);
-        this.amplifier.gain.value = 0;
-        this.oscillator.connect(this.amplifier);
+export class Channel {
+    constructor(ctx) {
+        this.ctx = ctx;
+        this.oscillator = ctx.createOscillator();
+        this.oscillator.type = 'square';
+        this.amplifier = new ADSRAmplifier(ctx);
+
+        this.oscillator.connect(this.amplifier.inputNode);
         this.oscillator.start();
     }
 
     get outputNode() {
-        return this.amplifier;
+        return this.amplifier.outputNode;
     }
 
-    startNote(freq) {
-        console.log(freq);
-        this.oscillator.frequency.setValueAtTime(freq, this.context.currentTime);
-        this.amplifier.gain.value = 0.3;
+    isBusy() {
+        return this.amplifier.getGain() > 0;
+    }
+
+    startNote(freq, time) {
+        if (time) {
+            this.oscillator.frequency.linearRampToValueAtTime(freq, this.ctx.currentTime + time);
+        } else {
+            this.oscillator.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        }
+        this.amplifier.startNote();
     }
 
     endNote() {
-        console.log("OFF");
-        this.amplifier.gain.value = 0;
+        this.amplifier.endNote();
     }
 }
 

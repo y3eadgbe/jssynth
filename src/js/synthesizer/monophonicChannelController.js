@@ -6,30 +6,43 @@ export class MonophonicChannelController extends ChannelController {
         super();
         this.channel = channel;
         this.noteStack = [];
+        this._portamentoTime = 0;
     }
 
-    get channelCount() {
+    get portamentoTime() {
+        return this._portamentoTime;
+    }
+
+    set portamentoTime(second) {
+        this._portamentoTime = second;
+    }
+
+    channelCount() {
         return 1;
     }
 
     startNote(note) {
-        console.log("controller start: " + note);
-        console.log("noteStack: " + this.noteStack);
         if (this.noteStack.indexOf(note) === -1) {
+            console.log("NoteOn: " + note);
             this.noteStack.push(note);
-            this.channel.startNote(noteToFrequency(note));
+            if (this.channel.isBusy()) {
+                console.log(this.portamentoTime);
+                this.channel.startNote(noteToFrequency(note), this.portamentoTime);
+            } else {
+                this.channel.startNote(noteToFrequency(note));
+            }
         }
     }
 
     endNote(note) {
-        console.log("controller end: " + note);
         const index = this.noteStack.indexOf(note);
         if (index !== -1) {
             this.noteStack.splice(index, 1);
-            if (this.noteStack.length == 0) {
+            if (this.noteStack.length === 0) {
+                console.log("NoteOff: " + note);
                 this.channel.endNote();
-            } else {
-                this.channel.startNote(noteToFrequency(this.noteStack[this.noteStack.length - 1]));
+            } else if (index == this.noteStack.length) {
+                this.channel.startNote(noteToFrequency(this.noteStack[this.noteStack.length - 1]), this.portamentoTime);
             }
         }
     }

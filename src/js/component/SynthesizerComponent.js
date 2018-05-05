@@ -18,12 +18,18 @@ const INITIAL_STATE = {
 export class SynthesizerComponent extends React.Component {
     constructor(props) {
         super(props);
-        this.context = new AudioContext();
-        this.synthesizer = new Synthesizer(this.context);
+        this.ctx = new AudioContext();
+        this.synthesizer = new Synthesizer(this.ctx);
+        this.masterGain = this.ctx.createGain();
         this.keyboardHandler = null;
 
-        this.synthesizer.outputNode.connect(this.context.destination);
+        this.synthesizer.outputNode.connect(this.masterGain);
+        this.masterGain.connect(this.ctx.destination);
         this.state = INITIAL_STATE;
+
+        this.keyDownHandler = this.keyDownHandler.bind(this);
+        this.keyUpHandler = this.keyUpHandler.bind(this);
+        this.changeMasterVolume = this.changeMasterVolume.bind(this);
     }
 
     keyDownHandler(note) {
@@ -36,8 +42,8 @@ export class SynthesizerComponent extends React.Component {
 
     componentDidMount() {
         this.keyboardHandler = new KeyboardHandler(
-            this.keyDownHandler.bind(this),
-            this.keyUpHandler.bind(this)
+            this.keyDownHandler,
+            this.keyUpHandler
         );
     }
 
@@ -47,8 +53,11 @@ export class SynthesizerComponent extends React.Component {
     }
 
     changeMasterVolume(val) {
+        this.masterGain.gain.exponentialRampToValueAtTime(
+            val,
+            this.ctx.currentTime + 0.01
+        );
         this.setState({ masterVolume: val });
-        this.synthesizer.changeMasterVolume(val);
     }
 
     render() {
@@ -57,7 +66,7 @@ export class SynthesizerComponent extends React.Component {
                 value={this.state.masterVolume}
                 min={CONTROLS.masterVolume.min}
                 max={CONTROLS.masterVolume.max}
-                onChange={this.changeMasterVolume.bind(this)}
+                onChange={this.changeMasterVolume}
                 unlockDistance={25}
             />
             <div>{this.state.masterVolume}</div>
