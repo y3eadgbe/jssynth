@@ -1,16 +1,16 @@
 import ChannelController from './channelController';
-import { noteToFrequency } from './frequencyUtil';
 
 export class MonophonicChannelController extends ChannelController {
     constructor(channel) {
         super();
         this.channel = channel;
+        this._channelCount = 1;
         this.noteStack = [];
         this.portamentoTime = 0;
     }
 
-    channelCount() {
-        return 1;
+    get channelCount() {
+        return this._channelCount;
     }
 
     startNote(note) {
@@ -18,9 +18,9 @@ export class MonophonicChannelController extends ChannelController {
             console.log("NoteOn: " + note);
             this.noteStack.push(note);
             if (this.channel.isBusy()) {
-                this.channel.startNote(noteToFrequency(note), this.portamentoTime);
+                this.channel.startNote(note, this.portamentoTime);
             } else {
-                this.channel.startNote(noteToFrequency(note));
+                this.channel.startNote(note);
             }
         }
     }
@@ -33,7 +33,7 @@ export class MonophonicChannelController extends ChannelController {
                 console.log("NoteOff: " + note);
                 this.channel.endNote();
             } else if (index == this.noteStack.length) {
-                this.channel.startNote(noteToFrequency(this.noteStack[this.noteStack.length - 1]), this.portamentoTime);
+                this.channel.startNote(this.noteStack[this.noteStack.length - 1], this.portamentoTime);
             }
         }
     }

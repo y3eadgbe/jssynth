@@ -1,4 +1,5 @@
 import ADSRAmplifier from './adsrAmplifier';
+import { noteToFrequency } from './frequencyUtil';
 
 export class Channel {
     constructor(ctx, envelope, lfo) {
@@ -6,6 +7,8 @@ export class Channel {
         this.oscillator = this.ctx.createOscillator();
         this.oscillator.type = 'sine';
         this.amplifier = new ADSRAmplifier(ctx, envelope);
+        this._isActive = false;
+        this._noteNumber = -1;
 
         this.oscillator.connect(this.amplifier.inputNode);
         lfo.outputNode.connect(this.oscillator.frequency);
@@ -16,20 +19,32 @@ export class Channel {
         return this.amplifier.outputNode;
     }
 
+    get isActive() {
+        return this._isActive;
+    }
+
+    get noteNumber() {
+        return this._noteNumber;
+    }
+
     isBusy() {
         return this.amplifier.gain > 0;
     }
 
-    startNote(freq, time) {
+    startNote(note, time) {
+        this._isActive = true;
         if (time) {
-            this.oscillator.frequency.linearRampToValueAtTime(freq, this.ctx.currentTime + time);
+            this.oscillator.frequency.linearRampToValueAtTime(noteToFrequency(note), this.ctx.currentTime + time);
         } else {
-            this.oscillator.frequency.setValueAtTime(freq, this.ctx.currentTime);
+            this.oscillator.frequency.setValueAtTime(noteToFrequency(note), this.ctx.currentTime);
         }
+        this._noteNumber = note;
         this.amplifier.startNote();
     }
 
     endNote() {
+        this._isActive = false;
+        this._noteNumber = -1;
         this.amplifier.endNote();
     }
 
