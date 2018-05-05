@@ -24,7 +24,11 @@ const CODE_TO_NOTE = {
     'KeyY': 81,
     'Digit7': 82,
     'KeyU': 83,
-    'KeyI': 84
+    'KeyI': 84,
+    'Digit9': 85,
+    'KeyO': 86,
+    'Digit0': 87,
+    'KeyP': 88,
 }
 
 export class KeyboardHandler {

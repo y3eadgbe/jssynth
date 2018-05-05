@@ -1,13 +1,14 @@
 import ADSRAmplifier from './adsrAmplifier';
 
 export class Channel {
-    constructor(ctx) {
+    constructor(ctx, envelope, lfo) {
         this.ctx = ctx;
-        this.oscillator = ctx.createOscillator();
-        this.oscillator.type = 'square';
-        this.amplifier = new ADSRAmplifier(ctx);
+        this.oscillator = this.ctx.createOscillator();
+        this.oscillator.type = 'sine';
+        this.amplifier = new ADSRAmplifier(ctx, envelope);
 
         this.oscillator.connect(this.amplifier.inputNode);
+        lfo.outputNode.connect(this.oscillator.frequency);
         this.oscillator.start();
     }
 
@@ -16,7 +17,7 @@ export class Channel {
     }
 
     isBusy() {
-        return this.amplifier.getGain() > 0;
+        return this.amplifier.gain > 0;
     }
 
     startNote(freq, time) {
@@ -30,6 +31,10 @@ export class Channel {
 
     endNote() {
         this.amplifier.endNote();
+    }
+
+    setPrimaryOscillatorType(val) {
+        this.oscillator.type = val;
     }
 }
 

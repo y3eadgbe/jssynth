@@ -6,15 +6,7 @@ export class MonophonicChannelController extends ChannelController {
         super();
         this.channel = channel;
         this.noteStack = [];
-        this._portamentoTime = 0;
-    }
-
-    get portamentoTime() {
-        return this._portamentoTime;
-    }
-
-    set portamentoTime(second) {
-        this._portamentoTime = second;
+        this.portamentoTime = 0;
     }
 
     channelCount() {
@@ -26,7 +18,6 @@ export class MonophonicChannelController extends ChannelController {
             console.log("NoteOn: " + note);
             this.noteStack.push(note);
             if (this.channel.isBusy()) {
-                console.log(this.portamentoTime);
                 this.channel.startNote(noteToFrequency(note), this.portamentoTime);
             } else {
                 this.channel.startNote(noteToFrequency(note));
@@ -45,6 +36,10 @@ export class MonophonicChannelController extends ChannelController {
                 this.channel.startNote(noteToFrequency(this.noteStack[this.noteStack.length - 1]), this.portamentoTime);
             }
         }
+    }
+
+    setPortamentoTime(value) {
+        this.portamentoTime = value;
     }
 }
 

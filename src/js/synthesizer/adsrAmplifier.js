@@ -1,43 +1,42 @@
 export class ADSRAmplifier {
-    constructor(ctx) {
-        this.ctx = ctx;
-        this.amplifier = ctx.createGain();
-        this.amplifier.gain.value = 0;
-        this.attack = 0.05;
-        this.decay = 0.3;
-        this.sustain = 0.5;
-        this.release = 0.3;
+    constructor(ctx, envelope) {
+        console.log(envelope);
+        this._ctx = ctx;
+        this._envelope = envelope;
+        this._amplifier = ctx.createGain();
+        this._amplifier.gain.value = 0;
     }
 
     get inputNode() {
-        return this.amplifier;
+        return this._amplifier;
     }
     
     get outputNode() {
-        return this.amplifier;
+        return this._amplifier;
     }
 
-    getGain() {
-        return this.amplifier.gain.value;
+    get gain() {
+        return this._amplifier.gain.value;
+    }
+    
+    get envelope() {
+        return this._envelope;
     }
 
     startNote() {
-        console.log("amp startNote:" + this.ctx.currentTime);
-        console.log(this.amplifier.gain);
-        console.log(this.ctx.currentTime + this.attack + ", " + (this.ctx.currentTime + this.attack + this.decay));
-        this.amplifier.gain.cancelAndHoldAtTime(this.ctx.currentTime);
-        this.amplifier.gain.setValueAtTime(this.amplifier.gain.value, this.ctx.currentTime);
-        this.amplifier.gain.linearRampToValueAtTime(1, this.ctx.currentTime + this.attack);
-        this.amplifier.gain.linearRampToValueAtTime(this.sustain, this.ctx.currentTime + this.attack + this.decay);
+        this._amplifier.gain.cancelAndHoldAtTime(this._ctx.currentTime);
+        this._amplifier.gain.setValueAtTime(this._amplifier.gain.value, this._ctx.currentTime);
+        this._amplifier.gain.linearRampToValueAtTime(1, this._ctx.currentTime + this.envelope.attack);
+        this._amplifier.gain.linearRampToValueAtTime(this.envelope.sustain, this._ctx.currentTime + this.envelope.attack + this.envelope.decay);
     }
 
     endNote() {
-        console.log("amp endNote:" + this.ctx.currentTime);
-        console.log(this.ctx.currentTime + this.release);
-        this.amplifier.gain.cancelAndHoldAtTime(this.ctx.currentTime);
-        this.amplifier.gain.setValueAtTime(this.amplifier.gain.value, this.ctx.currentTime);
-        this.amplifier.gain.linearRampToValueAtTime(0, this.ctx.currentTime + this.release);
+        this._amplifier.gain.cancelAndHoldAtTime(this._ctx.currentTime);
+        this._amplifier.gain.setValueAtTime(this._amplifier.gain.value, this._ctx.currentTime);
+        this._amplifier.gain.linearRampToValueAtTime(0, this._ctx.currentTime + this.envelope.release);
     }
+
+
 }
 
 export default ADSRAmplifier;
