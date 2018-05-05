@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Synthesizer from './components/Synthesizer';
+import SynthesizerComponent from './component/SynthesizerComponent';
 
 class App extends React.Component {
     constructor(props) {
@@ -11,7 +11,7 @@ class App extends React.Component {
     }
 
     render() {
-        return this.state.show ? <Synthesizer/> : <button onClick={() => this.setState({show: !this.state.show})}>Start</button>;
+        return this.state.show ? <SynthesizerComponent/> : <button onClick={() => this.setState({show: !this.state.show})}>Start</button>;
     }
 }
 
